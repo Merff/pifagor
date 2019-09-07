@@ -10,6 +10,8 @@ defmodule Pifagor.TradingCandleContext do
     |> update_rates!(current_rate)
 
     close_trading_candles(current_rate, current_time)
+
+    Logger.info("#{current_time}: #{current_rate} recorded for #{timeframe} candle")
   end
 
   defp find_or_create_trading_candle!(timeframe, current_rate, current_time) do
