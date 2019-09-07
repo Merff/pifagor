@@ -8,3 +8,7 @@ config :pifagor, Pifagor.Repo,
   password: "postgres",
   hostname: "localhost",
   port: "5432"
+
+config :pifagor, :deribit,
+  request_interval: 10_000,
+  request_url: "https://test.deribit.com/api/v2/public/get_index?currency=BTC"
