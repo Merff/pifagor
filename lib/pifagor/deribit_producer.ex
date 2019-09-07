@@ -17,7 +17,7 @@ defmodule Pifagor.DeribitProducer do
 
   def handle_info(:get_data, state) do
     api_get_data()
-    #|> TradingCandleContext.process()
+    |> Pifagor.TradingCandleContext.process()
 
     schedule_work()
     {:noreply, state}
