@@ -9,7 +9,7 @@ defmodule Pifagor.Repo.Migrations.AddTradingCandles do
       add :low, :decimal
       add :high, :decimal
       add :close, :decimal
-      add :close_time, :naive_datetime, null: false
+      add :close_time, :utc_datetime, null: false
 
       timestamps()
     end

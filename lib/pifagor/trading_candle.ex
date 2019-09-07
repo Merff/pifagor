@@ -2,14 +2,14 @@ defmodule Pifagor.TradingCandle do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "trading_candle" do
+  schema "trading_candles" do
     field :timeframe, :string
     field :status, :string
     field :open, :decimal
     field :low, :decimal
     field :high, :decimal
     field :close, :decimal
-    field :close_time, :naive_datetime
+    field :close_time, :utc_datetime
 
     timestamps()
   end

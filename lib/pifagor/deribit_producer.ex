@@ -16,8 +16,13 @@ defmodule Pifagor.DeribitProducer do
   end
 
   def handle_info(:get_data, state) do
-    api_get_data()
-    |> Pifagor.TradingCandleContext.process()
+    current_rate = api_get_current_rate()
+    current_time = Timex.now() |> DateTime.truncate(:second)
+
+    Application.fetch_env!(:pifagor, :timeframes)
+    |> Enum.each(fn timeframe ->
+      Pifagor.TradingCandleContext.process(timeframe, current_rate, current_time)
+    end)
 
     schedule_work()
     {:noreply, state}
@@ -31,7 +36,7 @@ defmodule Pifagor.DeribitProducer do
     )
   end
 
-  defp api_get_data() do
+  defp api_get_current_rate() do
     api_url = Application.fetch_env!(:pifagor, :deribit)[:request_url]
 
     case HTTPoison.get(api_url) do

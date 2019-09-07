@@ -4,15 +4,10 @@ defmodule Pifagor.TradingCandleContext do
   require Logger
   alias Pifagor.{Repo, TradingCandle}
 
-  def process(nil), do: Logger.error("get empty current_rate")
-  def process(current_rate) do
-    current_time = Timex.now()
-
-    ["1m", "5m", "1h", "4h", "1d", "1w"]
-    |> Enum.each(fn timeframe ->
-      find_or_create_trading_candle!(timeframe, current_rate, current_time)
-      |> update_rates!(current_rate)
-    end)
+  def process(_, nil, _), do: Logger.error("get empty current_rate")
+  def process(timeframe, current_rate, current_time) do
+    find_or_create_trading_candle!(timeframe, current_rate, current_time)
+    |> update_rates!(current_rate)
 
     close_trading_candles(current_rate, current_time)
   end
@@ -50,14 +45,15 @@ defmodule Pifagor.TradingCandleContext do
   end
 
   defp update_rates!(trading_candle, current_rate) do
+    decimal_current_rate = Decimal.from_float(current_rate)
     params = %{
-      low: min(trading_candle.low, current_rate),
-      high: max(trading_candle.high, current_rate)
+      low: min(trading_candle.low, decimal_current_rate),
+      high: max(trading_candle.high, decimal_current_rate)
     }
 
     trading_candle
     |> TradingCandle.changeset(params)
-    |> Repo.update!(params)
+    |> Repo.update!()
   end
 
   defp get_close_time(timeframe, current_time) do
@@ -69,6 +65,7 @@ defmodule Pifagor.TradingCandleContext do
         "4h" -> 240
         "1d" -> 1440
         "1w" -> 10_080
+        _ -> Logger.error("cannot resolve timeframe")
       end
 
     Timex.shift(current_time, minutes: minutes)
