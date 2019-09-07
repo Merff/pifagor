@@ -1,18 +1,12 @@
 defmodule Pifagor do
-  @moduledoc """
-  Documentation for Pifagor.
-  """
+  use Application
 
-  @doc """
-  Hello world.
+  def start(_type, _args) do
+    children = [
+      Pifagor.Repo
+    ]
 
-  ## Examples
-
-      iex> Pifagor.hello()
-      :world
-
-  """
-  def hello do
-    :world
+    opts = [strategy: :one_for_one, name: Pifagor.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 end
