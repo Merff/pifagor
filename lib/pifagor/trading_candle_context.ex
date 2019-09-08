@@ -9,7 +9,7 @@ defmodule Pifagor.TradingCandleContext do
     find_or_create_trading_candle!(timeframe, current_rate, current_time)
     |> update_rates!(current_rate)
 
-    close_trading_candles(current_rate, current_time)
+    close_expire_trading_candles(current_time)
 
     Logger.info("#{current_time}: #{current_rate} recorded for #{timeframe} candle")
   end
@@ -30,6 +30,7 @@ defmodule Pifagor.TradingCandleContext do
           open: current_rate,
           low: current_rate,
           high: current_rate,
+          close: current_rate,
           close_time: get_close_time(timeframe, current_time)
         }
         |> TradingCandle.changeset()
@@ -39,18 +40,19 @@ defmodule Pifagor.TradingCandleContext do
     end
   end
 
-  defp close_trading_candles(current_rate, current_time) do
+  defp close_expire_trading_candles(current_time) do
     from(c in TradingCandle,
       where: c.close_time >= ^current_time
     )
-    |> Repo.update_all(set: [status: "close", close: current_rate])
+    |> Repo.update_all(set: [status: "close"])
   end
 
   defp update_rates!(trading_candle, current_rate) do
     decimal_current_rate = Decimal.from_float(current_rate)
     params = %{
       low: min(trading_candle.low, decimal_current_rate),
-      high: max(trading_candle.high, decimal_current_rate)
+      high: max(trading_candle.high, decimal_current_rate),
+      close: current_rate
     }
 
     trading_candle
@@ -67,7 +69,7 @@ defmodule Pifagor.TradingCandleContext do
         "4h" -> 240
         "1d" -> 1440
         "1w" -> 10_080
-        _ -> Logger.error("cannot resolve timeframe")
+        _ -> raise("cannot resolve timeframe")
       end
 
     Timex.shift(current_time, minutes: minutes)

@@ -45,6 +45,7 @@ defmodule Pifagor.DeribitProducer do
         |> get_in(["result", "BTC"])
       _ ->
         Logger.error("#{api_url} not available")
+        nil
     end
   end
 end

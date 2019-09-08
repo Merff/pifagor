@@ -42,7 +42,6 @@ defmodule Pifagor.TradingCandleContextTest do
       assert candle.low == Decimal.from_float(@open_rate)
       assert candle.high == Decimal.from_float(@curent_rate)
       assert candle.status == "open"
-      assert candle.close == nil
     end
 
     test "when close_time expire close candle" do
